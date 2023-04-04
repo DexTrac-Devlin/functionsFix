@@ -13,7 +13,7 @@ app.post('/run', (req, res) => {
   // Schedule a timeout after 1 minute
   const timeout = setTimeout(() => {
     console.log('Maximum run time exceeded');
-    res.status(500).send('Maximum run time exceeded');
+    res.status(500).send({ error: 'Maximum run time exceeded' });
   }, 60000);
 
   // Get the code from the request body
@@ -23,8 +23,8 @@ app.post('/run', (req, res) => {
   const sandbox = { };
   vm.runInNewContext(code, sandbox);
 
-  // Send the result as a response
-  res.send(sandbox.result);
+  // Send the result as a response wrapped in a JSON object
+  res.send({ result: sandbox.result });
 
   // Clear the timeout to prevent it from triggering
   clearTimeout(timeout);
