@@ -1,33 +1,35 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const vm = require('vm');
 const app = express();
+const vm = require('vm');
 
-// Configure middleware to parse JSON data
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Serve the static HTML file
-app.use(express.static('public'));
-
-// Handle the "execute" POST request
-app.post('/execute', (req, res) => {
-  // Get the JavaScript code from the request body
-  const { code } = req.body;
-
-  try {
-    // Create a new VM context to run the code in
-    const context = vm.createContext();
-
-    // Execute the JavaScript code in the VM context
-    vm.runInContext(code, context);
-
-    // Send the result of the execution back to the client
-    res.json({ result: context });
-  } catch (err) {
-    // If an error occurs, send it back to the client
-    res.status(400).json({ error: err.message });
-  }
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
 });
 
-// Start the server
-app.listen(3000, () => console.log('Server started on port 3000'));
+app.post('/run', (req, res) => {
+  // Schedule a timeout after 1 minute
+  const timeout = setTimeout(() => {
+    console.log('Maximum run time exceeded');
+    res.status(500).send('Maximum run time exceeded');
+  }, 60000);
+
+  // Get the code from the request body
+  const code = req.body.code;
+
+  // Run the code in a sandboxed environment
+  const sandbox = { };
+  vm.runInNewContext(code, sandbox);
+
+  // Send the result as a response
+  res.send(sandbox.result);
+
+  // Clear the timeout to prevent it from triggering
+  clearTimeout(timeout);
+});
+
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
