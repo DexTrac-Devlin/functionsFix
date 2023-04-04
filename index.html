@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>JS Sandbox</title>
+  </head>
+  <body>
+    <h1>JS Sandbox</h1>
+    <form>
+      <label for="code">Enter your JavaScript code:</label><br>
+      <textarea id="code" name="code" rows="10" cols="50"></textarea><br>
+      <input type="button" value="Run" onclick="run()">
+    </form>
+    <h2>Output:</h2>
+    <pre id="output"></pre>
+    <script>
+      function run() {
+        const code = document.getElementById("code").value;
+        fetch("/run", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ code })
+        })
+        .then(response => response.json())
+        .then(data => {
+          const output = document.getElementById("output");
+          output.innerText = JSON.stringify(data.result);
+        })
+        .catch(error => console.error(error));
+      }
+    </script>
+  </body>
+</html>

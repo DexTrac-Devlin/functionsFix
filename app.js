@@ -21,10 +21,10 @@ app.post('/run', (req, res) => {
 
   // Run the code in a sandboxed environment
   const sandbox = { };
-  vm.runInNewContext(code, sandbox);
+  const result = vm.runInNewContext(code, sandbox);
 
   // Send the result as a response wrapped in a JSON object
-  res.send({ result: sandbox.result });
+  res.send({ result: result });
 
   // Clear the timeout to prevent it from triggering
   clearTimeout(timeout);
